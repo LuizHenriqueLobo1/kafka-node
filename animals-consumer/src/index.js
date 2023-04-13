@@ -1,7 +1,4 @@
-import express from "express";
 import { Kafka } from "kafkajs";
-
-const app = express();
 
 const kafka = new Kafka({
   clientId: 'kafka-node',
@@ -21,7 +18,3 @@ async function consumeHelloWorld() {
 }
 
 consumeHelloWorld();
-
-app.listen(3001, () => {
-  console.log("Servidor aberto na porta 3001! (Animals)");
-});
