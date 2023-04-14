@@ -19,27 +19,35 @@ const producer = kafka.producer();
 producer.connect();
 
 async function run () {
-  setInterval(async () => {
-    // docs: https://docs.github.com/pt/rest/search?apiVersion=2022-11-28#search-repositories
-    octokit.search.repos({ q: `language:${process.env.KAFKA_TOPIC}` })
-      .then(({ data }) => {
-        console.log('encontrados ', data.items.length, 'repositorios');
+  let currentPage = 1;
   
+  let intervalId = setInterval(async () => {
+    // docs:  https://docs.github.com/pt/rest/search?apiVersion=2022-11-28#search-repositories
+    //        https://docs.github.com/pt/rest/search?apiVersion=2022-11-28
+    
+    octokit.search.repos({ q: `language:${process.env.KAFKA_TOPIC}`, per_page: 100, page: currentPage })
+      .then(({ data }) => {
         data.items.forEach(async item => {
           await producer.send({
             topic: process.env.KAFKA_TOPIC,
             compression: CompressionTypes.GZIP,
             messages: [ { value: item.name }],
           });
-  
-          console.log('repositorio', item.name, 'enviado pelo kafka');
         });
       })
       .catch(async error => {
         console.error(error);
         await producer.disconnect();
+        clearInterval(intervalId);
       });
-  }, 1000);
+
+      if (currentPage == 10) {
+        clearInterval(intervalId);
+        return;
+      }
+
+      currentPage++;
+  }, 5000);
 }
 
 run().catch(console.error);
