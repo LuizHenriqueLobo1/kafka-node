@@ -1,5 +1,5 @@
 {
-  "name": "animals-consumer",
+  "name": "kafka-node",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,6 +11,8 @@
   "author": "Luiz Henrique Lobo",
   "license": "ISC",
   "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "dotenv": "^16.0.3",
     "kafkajs": "^2.2.4"
   }
 }

@@ -1,3 +1,8 @@
-/node_modules
-/animals-consumer/node_modules
-/countries-consumer/node_modules
+/git-repos-producer/node_modules
+/git-repos-producer/.env
+
+/java-consumer/node_modules
+/java-consumer/.env
+
+/javascript-consumer/node_modules
+/javascript-consumer/.env
