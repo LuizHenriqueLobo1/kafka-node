@@ -1,11 +1,8 @@
 /git-repos-producer/node_modules
 /git-repos-producer/.env
 
-/java-consumer/node_modules
-/java-consumer/.env
-
-/javascript-consumer/node_modules
-/javascript-consumer/.env
+/git-repos-consumer/node_modules
+/git-repos-consumer/.env
 
 /ms-monitor/node_modules
 /ms-monitor/.env
