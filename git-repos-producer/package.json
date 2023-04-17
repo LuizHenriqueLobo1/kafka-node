@@ -5,13 +5,15 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js javascript -and node src/index.js java",
+    "ps-start": "powershell Start-Process powershell -ArgumentList \"-noexit\", \"-command node src/index.js javascript\" -and powershell Start-Process powershell -ArgumentList \"-noexit\", \"-command node src/index.js java\""
   },
   "keywords": [],
   "author": "Luiz Henrique Lobo",
   "license": "ISC",
   "dependencies": {
     "@octokit/rest": "^19.0.7",
+    "@types/socket.io-client": "^3.0.0",
     "dotenv": "^16.0.3",
     "kafkajs": "^2.2.4"
   }

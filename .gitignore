@@ -6,3 +6,6 @@
 
 /javascript-consumer/node_modules
 /javascript-consumer/.env
+
+/ms-monitor/node_modules
+/ms-monitor/.env
