@@ -5,8 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js javascript -and node src/index.js java",
-    "ps-start": "powershell Start-Process powershell -ArgumentList \"-noexit\", \"-command node src/index.js javascript\" -and powershell Start-Process powershell -ArgumentList \"-noexit\", \"-command node src/index.js java\""
+    "start-js": "node src/index.js javascript",
+    "start-java": "node src/index.js java",
+    "start-all": "npm-run-all --parallel start-js start-java"
   },
   "keywords": [],
   "author": "Luiz Henrique Lobo",

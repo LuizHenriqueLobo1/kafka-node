@@ -10,9 +10,14 @@ config();
 const octokit = new Octokit({ auth: process.env.GITHUB_ACCESSTOKEN });
 
 // inicializa as configurações gerais do kafka
+const kafkaTopic = process.argv[2] || process.env.KAFKA_TOPIC;
+
+const clientId = process.env.KAFKA_CLIENT_ID
+  .replace('topic', kafkaTopic);
+
 const kafka = new Kafka({
-  clientId: process.env.KAFKA_CLIENT_ID,
   brokers: [process.env.KAFKA_HOST],
+  clientId: clientId,
 });
 
 // cria uma instância de um produtor
@@ -20,7 +25,9 @@ const producer = kafka.producer();
 producer.connect();
 
 async function run () {
-  let kafkaTopic = process.argv[2] || process.env.KAFKA_TOPIC;
+  // producers running * good timeout for 1 producer 
+  const intervalTimeOut = 2 * 7000;
+
   let serviceId = `producer-${kafkaTopic}`;
   let currentPage = 1;
 
@@ -66,7 +73,7 @@ async function run () {
       }
 
       currentPage++;
-  }, 7000);
+  }, intervalTimeOut);
 };
 
 run().catch(console.error);
