@@ -15,6 +15,8 @@ const kafkaTopic = process.argv[2] || process.env.KAFKA_TOPIC;
 const clientId = process.env.KAFKA_CLIENT_ID
   .replace('topic', kafkaTopic);
 
+const serviceId = `producer-${kafkaTopic}`;
+
 const kafka = new Kafka({
   brokers: [process.env.KAFKA_HOST],
   clientId: clientId,
@@ -22,13 +24,15 @@ const kafka = new Kafka({
 
 // cria uma instância de um produtor
 const producer = kafka.producer();
-producer.connect();
+await producer.connect();
 
 async function run () {
   // producers running * good timeout for 1 producer 
   const intervalTimeOut = 2 * 7000;
 
-  let serviceId = `producer-${kafkaTopic}`;
+  const requestPerPage = 10;
+  const requestMaxItemsToFetch = 1000;
+  const requestMaxPages = Math.floor(requestMaxItemsToFetch / requestPerPage);
   let currentPage = 1;
 
   const socket = io("http://localhost:3000", {
@@ -42,7 +46,7 @@ async function run () {
     // docs:  https://docs.github.com/pt/rest/search?apiVersion=2022-11-28#search-repositories
     //        https://docs.github.com/pt/rest/search?apiVersion=2022-11-28
     
-    octokit.search.repos({ q: `language:${kafkaTopic}`, per_page: 10, page: currentPage })
+    octokit.search.repos({ q: `language:${kafkaTopic}`, per_page: requestPerPage, page: currentPage })
       .then(({ data }) => {
         data.items.forEach(async item => {
           await producer.send({
@@ -52,28 +56,28 @@ async function run () {
           });
         });
 
-        let msg = `${serviceId} ${data.items.length} itens enviados para ${kafkaTopic}`;
-        socket.emit('message', msg);
-        console.log(msg);
+        log(socket, `INFO ${data.items.length} itens enviados para ${kafkaTopic}`);
       })
       .catch(async error => {
-        socket.emit('message', `${serviceId} apresentou um erro`);
-        console.error(error);
-
+        log(socket, `ERROR apresentou um erro`);
         await producer.disconnect();
         clearInterval(intervalId);
       });
 
-      if (currentPage == 100) {
-        let msg = `${serviceId} limite de requisições atingido. Reiniciando.`;
-        socket.emit('message', msg);
-        console.log(msg);
+      if (currentPage == requestMaxPages) {
+        log(socket, `WARN limite de requisições atingido. Reiniciando`);
         currentPage = 1;
         return;
       }
 
       currentPage++;
   }, intervalTimeOut);
+};
+
+function log(socket, msg) {
+  msg = `${serviceId} ${(new Date()).toLocaleString()} ${msg}`;
+  socket && socket.emit('message', msg);
+  console.log(msg);
 };
 
 run().catch(console.error);

@@ -26,7 +26,7 @@ io.on('connection', (clientSocket) => {
   let connectionType = clientSocket.handshake.headers.conntype;
   let clientId = clientSocket.handshake.headers.clientid;
 
-  console.log('connection request from', clientId, 'of type', connectionType);
+  console.log('ms-monitor', (new Date()).toLocaleString(), 'connection request from', clientId, 'of type', connectionType);
 
   if (connectionType == "monitor") {
     // sendo um monitor, adicionar o socket na lista de listeners

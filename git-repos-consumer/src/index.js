@@ -13,7 +13,9 @@ const clientId = process.env.KAFKA_CLIENT_ID
   .replace('timestamp', (new Date()).getTime());
 
 const consumerGroupId = process.env.KAFKA_GROUP_ID
-.replace('topic', kafkaTopic);
+  .replace('topic', kafkaTopic);
+
+const serviceId = `consumer-${kafkaTopic}`;
 
 const kafka = new Kafka({
   brokers: [process.env.KAFKA_HOST],
@@ -21,9 +23,9 @@ const kafka = new Kafka({
 });
 
 const consumer = kafka.consumer({ groupId: consumerGroupId });
+await consumer.connect();
 
 async function run() {
-  let serviceId = `consumer-${kafkaTopic}`;
 
   const socket = io("http://localhost:3000", {
     extraHeaders: {
@@ -32,8 +34,6 @@ async function run() {
     }
   });
 
-  await consumer.connect();
-
   await consumer.subscribe({
     topic: kafkaTopic,
     fromBeginning: true
@@ -41,11 +41,15 @@ async function run() {
   
   await consumer.run({
     eachMessage: async ({ message }) => {
-      let msgLog = `${serviceId} mensagem recebida: ${message.value};`
-      socket.emit('message', msgLog);
-      console.log(msgLog);
+      log(socket, `INFO mensagem recebida: ${message.value}`);
     }
   });
-}
+};
+
+function log(socket, msg) {
+  msg = `${serviceId} ${(new Date()).toLocaleString()} ${msg}`;
+  socket && socket.emit('message', msg);
+  console.log(msg);
+};
 
 run().catch(console.error);
