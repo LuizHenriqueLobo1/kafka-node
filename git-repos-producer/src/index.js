@@ -41,6 +41,8 @@ async function run () {
       clientId: serviceId
     }
   });
+
+  await createTopic();
   
   let intervalId = setInterval(async () => {
     // docs:  https://docs.github.com/pt/rest/search?apiVersion=2022-11-28#search-repositories
@@ -73,6 +75,26 @@ async function run () {
       currentPage++;
   }, intervalTimeOut);
 };
+
+async function createTopic() {
+  const admin = kafka.admin();
+  await admin.connect();
+
+  await admin.createTopics({
+    timeout: 10000,
+    validateOnly: false,
+    waitForLeaders: true,
+    topics: [
+      {
+        topic: kafkaTopic,
+        replicationFactor: 1,
+        numPartitions: 1
+      }
+    ],
+  });
+
+  await admin.disconnect();
+}
 
 function log(socket, msg) {
   msg = `${serviceId} ${(new Date()).toLocaleString()} ${msg}`;

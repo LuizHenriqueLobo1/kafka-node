@@ -34,6 +34,8 @@ async function run() {
     }
   });
 
+  await createTopic();
+
   await consumer.subscribe({
     topic: kafkaTopic,
     fromBeginning: true
@@ -45,6 +47,26 @@ async function run() {
     }
   });
 };
+
+async function createTopic() {
+  const admin = kafka.admin();
+  await admin.connect();
+
+  await admin.createTopics({
+    timeout: 10000,
+    validateOnly: false,
+    waitForLeaders: true,
+    topics: [
+      {
+        topic: kafkaTopic,
+        replicationFactor: 1,
+        numPartitions: 1
+      }
+    ],
+  });
+
+  await admin.disconnect();
+}
 
 function log(socket, msg) {
   msg = `${serviceId} ${(new Date()).toLocaleString()} ${msg}`;
