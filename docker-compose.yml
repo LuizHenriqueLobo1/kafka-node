@@ -14,13 +14,11 @@ services:
       KAFKA_CREATE_TOPICS: "javascript:1:1,java:1:1"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  app:
-    build: ./git-repos-producer
+    depends_on:
+      - zookeeper
+  kafkanode:
+    image: kafka-node
     ports:
-      - "3009:3009"
-    environment:
-      NODE_ENV: production
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_CLIENT_ID: my-app
-    volumes:
-      - ./git-repos-producer:/app
+      - "3000:3000"
+    depends_on:
+      - kafka
