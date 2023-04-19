@@ -24,8 +24,9 @@ services:
       - zookeeper
 
   app:
-    image: kafka-node
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     networks:
