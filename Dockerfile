@@ -1,12 +1,14 @@
 FROM node:18-alpine
 
+WORKDIR /app
+
 COPY . .
 
-COPY /git-repos-producer/.env.example /git-repos-producer/.env
-COPY /git-repos-consumer/.env.example /git-repos-consumer/.env
+COPY /git-repos-producer/.env.example git-repos-producer/.env
+COPY /git-repos-consumer/.env.example git-repos-consumer/.env
 
-RUN npm --prefix /ms-monitor/ i
-RUN npm --prefix /git-repos-producer/ i
-RUN npm --prefix /git-repos-consumer/ i
+RUN npm --prefix /app/ms-monitor/ i
+RUN npm --prefix /app/git-repos-producer/ i
+RUN npm --prefix /app/git-repos-consumer/ i
 
-CMD ["npm", "--prefix", "./ms-monitor", "run", "start-all"]
+CMD ["npm", "--prefix", "/app/ms-monitor", "run", "start-all"]

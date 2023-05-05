@@ -62,11 +62,10 @@ services:
       PORT: 9021
     networks:
       - kafka_network
-
+  
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: davirmsousa/kafka-node-app:latest
+    container_name: kafka-node-app
     ports:
       - "3000:3000"
     networks:
