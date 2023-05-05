@@ -17,14 +17,15 @@ const clientId = process.env.KAFKA_CLIENT_ID
 
 const serviceId = `producer-${kafkaTopic}`;
 
+console.log(`${serviceId} iniciando cliente kafka`);
 const kafka = new Kafka({
   brokers: [process.env.KAFKA_HOST],
   clientId: clientId,
+  retry: { retries: 10 }
 });
 
-// cria uma instância de um produtor
+console.log(`${serviceId} criando instancia de producer`);
 const producer = kafka.producer();
-await producer.connect();
 
 async function run () {
   // producers running * good timeout for 1 producer 
@@ -42,7 +43,11 @@ async function run () {
     }
   });
 
+  console.log(`${serviceId} criando o topico`);
   await createTopic();
+
+  console.log(`${serviceId} conectando o producer`);
+  await producer.connect();
   
   let intervalId = setInterval(async () => {
     // docs:  https://docs.github.com/pt/rest/search?apiVersion=2022-11-28#search-repositories
@@ -77,9 +82,13 @@ async function run () {
 };
 
 async function createTopic() {
+  console.log(`${serviceId} criando instancia de admin`);
   const admin = kafka.admin();
+
+  console.log(`${serviceId} conectando admin`);
   await admin.connect();
 
+  console.log(`${serviceId} criando topico`);
   await admin.createTopics({
     timeout: 10000,
     validateOnly: false,
@@ -93,6 +102,7 @@ async function createTopic() {
     ],
   });
 
+  console.log(`${serviceId} desconectando admin`);
   await admin.disconnect();
 }
 
