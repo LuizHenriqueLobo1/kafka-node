@@ -50,7 +50,7 @@ async function run() {
   
   await consumer.run({
     eachMessage: async ({ message }) => {
-      log(socket, `INFO mensagem recebida: ${message.value}`);
+      log(socket, `INFO mensagem recebida: `, String(message.value));
     }
   });
 };
@@ -80,10 +80,10 @@ async function createTopic() {
   await admin.disconnect();
 }
 
-function log(socket, msg) {
+function log(socket, msg, rawMessage) {
   msg = `${serviceId} ${(new Date()).toLocaleString()} ${msg}`;
-  socket && socket.emit('message', msg);
-  console.log(msg);
+  socket && socket.emit('message', { msg, rawMessage });
+  console.log(msg + rawMessage);
 };
 
 run().catch(console.error);

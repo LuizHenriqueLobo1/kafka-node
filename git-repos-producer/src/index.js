@@ -59,11 +59,11 @@ async function run () {
           await producer.send({
             topic: kafkaTopic,
             compression: CompressionTypes.GZIP,
-            messages: [ { value: item.name }],
+            messages: [ { value: `https://github.com/${item.full_name}` }],
           });
         });
 
-        log(socket, `INFO ${data.items.length} itens enviados para ${kafkaTopic}`);
+        log(socket, `INFO ${data.items.length} itens enviados para ${kafkaTopic}`, '');
       })
       .catch(async error => {
         log(socket, `ERROR apresentou um erro`);
@@ -106,9 +106,9 @@ async function createTopic() {
   await admin.disconnect();
 }
 
-function log(socket, msg) {
+function log(socket, msg, rawMessage) {
   msg = `${serviceId} ${(new Date()).toLocaleString()} ${msg}`;
-  socket && socket.emit('message', msg);
+  socket && socket.emit('message', { msg, rawMessage });
   console.log(msg);
 };
 

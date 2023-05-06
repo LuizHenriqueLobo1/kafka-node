@@ -27,12 +27,12 @@
       let messagesByTab = {};
       let activeTab;
 
-      socket.on('message', function(msg){
+      socket.on('message', function({ msg, rawMessage }){
         // pega o id do servico que mandou a mensagem
         let serviceId = msg.split(' ')[0];
 
         // adiciona a mensagem no dicionario
-        addMessageInDictionary(serviceId, msg);
+        addMessageInDictionary(serviceId, msg, rawMessage);
 
         let serviceTab = document.querySelectorAll(
           "ul#tab-services li.nav-link#" + serviceId
@@ -45,13 +45,13 @@
 
         // adiciona a mensagem no fim da lista
         if (activeTab == serviceId) {
-          appendMessage(msg);
+          appendMessage({ msg, rawMessage });
         }
       });
 
-      const addMessageInDictionary = (serviceId, msg) => {
+      const addMessageInDictionary = (serviceId, msg, rawMessage) => {
         let messagesList = messagesByTab[serviceId] || [];
-        messagesList.push(msg);
+        messagesList.push({ msg, rawMessage });
         messagesByTab[serviceId] = messagesList;
       };
 
@@ -102,18 +102,22 @@
         ul.textContent = '';
 
         for (const message of messagesByTab[serviceId]) {
-          appendMessage(message, ul);
+          appendMessage({ msg: message.msg, rawMessage: message.rawMessage }, ul);
         }
       };
 
-      const appendMessage = (msg, ulElement) => {
+      const appendMessage = (message, ulElement) => {
         let ul = ulElement || document.getElementById("logs-list-group");
 
         // cria um elemento LI
         let li = document.createElement('li');
+        const link = document.createElement('a');
         li.classList.add("list-group-item");
-        li.appendChild(document.createTextNode(msg));
-        
+        li.textContent = message.msg;
+        link.textContent = message.rawMessage;
+        link.setAttribute('href', message.rawMessage);
+        link.setAttribute('target', '_blank');
+        li.appendChild(link);
         // adiciona a mensagem à lista de mensagens
         ul.appendChild(li);
       }
